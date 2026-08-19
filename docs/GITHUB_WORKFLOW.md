@@ -4,6 +4,17 @@ English | [한국어](GITHUB_WORKFLOW.ko.md)
 
 This directory is the local working copy of the GitHub repository. Changes made and verified here are published with a commit and `git push`.
 
+## Protect the commit email
+
+Configure this repository to use the GitHub-provided private email before committing:
+
+```sh
+git config user.name "ekdma7913"
+git config user.email "59790421+ekdma7913@users.noreply.github.com"
+```
+
+`source-audit.sh` rejects a different configured email or any ordinary email reachable in the local Git history. GitHub-generated merge commits can use an account email even when the branch commits use the private address. After reviewing a Pull Request, merge it locally with the configuration above and push `main` instead of using a server-generated merge commit.
+
 ## Routine bug-fix flow
 
 ```sh
@@ -28,6 +39,19 @@ git push -u origin fix/short-bug-name
 ```
 
 Open a Pull Request on GitHub and merge it into `main` after review. Even for a small project, branches and Pull Requests preserve why a change was made and make rollback easier.
+
+After review, perform the merge locally:
+
+```sh
+git switch main
+git pull --ff-only
+git merge --no-ff fix/short-bug-name -m "Merge fix/short-bug-name"
+git log -1 --format='%an <%ae> / %cn <%ce>'
+./scripts/source-audit.sh
+git push origin main
+```
+
+Both addresses printed by `git log` must end in `@users.noreply.github.com` before pushing.
 
 ## New release flow
 

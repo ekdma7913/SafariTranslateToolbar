@@ -22,6 +22,20 @@ fail() {
     exit 1
 }
 
+if git -C "${ROOT_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    configured_git_email="$(git -C "${ROOT_DIR}" config user.email || true)"
+    [[ "${configured_git_email}" == *@users.noreply.github.com ]] || \
+        fail "Git 작성자 이메일은 GitHub users.noreply.github.com 주소여야 합니다."
+
+    exposed_git_emails="$(
+        git -C "${ROOT_DIR}" log --all --format='%ae%n%ce' |
+            rg -v '(^$|@users\.noreply\.github\.com$|^noreply@github\.com$)' |
+            sort -u || true
+    )"
+    [[ -z "${exposed_git_emails}" ]] || \
+        fail "Git 이력에 일반 이메일 주소가 있습니다: ${exposed_git_emails}"
+fi
+
 for plist in \
     "${APP_INFO}" \
     "${EXTENSION_INFO}" \

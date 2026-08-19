@@ -4,6 +4,17 @@
 
 이 디렉터리는 GitHub 저장소의 로컬 작업 폴더입니다. 여기에서 수정·검증·커밋한 뒤 `git push`하면 GitHub에 반영됩니다.
 
+## 커밋 이메일 보호
+
+커밋하기 전에 이 저장소가 GitHub 비공개 이메일을 사용하도록 설정합니다.
+
+```sh
+git config user.name "ekdma7913"
+git config user.email "59790421+ekdma7913@users.noreply.github.com"
+```
+
+`source-audit.sh`는 설정된 이메일이 다르거나 로컬 Git 이력에서 일반 이메일을 발견하면 실패합니다. 브랜치 커밋이 비공개 이메일을 사용하더라도 GitHub가 서버에서 만든 병합 커밋에는 계정 이메일이 들어갈 수 있습니다. Pull Request를 검토한 뒤에는 GitHub 병합 버튼 대신 위 설정을 사용해 로컬에서 병합하고 `main`을 push합니다.
+
 ## 평소 버그 수정 흐름
 
 ```sh
@@ -28,6 +39,19 @@ git push -u origin fix/간단한-버그-이름
 ```
 
 GitHub에서 Pull Request를 만들고 검토 후 `main`에 병합합니다. 브랜치와 Pull Request를 쓰면 변경 이유를 추적하고 되돌리기 쉽습니다.
+
+검토 후 로컬에서 병합합니다.
+
+```sh
+git switch main
+git pull --ff-only
+git merge --no-ff fix/간단한-버그-이름 -m "Merge fix/간단한-버그-이름"
+git log -1 --format='%an <%ae> / %cn <%ce>'
+./scripts/source-audit.sh
+git push origin main
+```
+
+push하기 전에 `git log`에 표시되는 두 이메일이 모두 `@users.noreply.github.com`으로 끝나는지 확인합니다.
 
 ## 새 버전 배포 흐름
 
