@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 개인정보 및 권한 설명
+    url: https://github.com/ekdma7913/SafariTranslateToolbar/blob/main/docs/PRIVACY.md
+    about: 앱이 사용하는 권한과 데이터 접근 범위를 먼저 확인해 주세요.

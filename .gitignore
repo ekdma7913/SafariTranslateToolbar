@@ -1,0 +1,33 @@
+*.xcarchive
+*.xcresult
+xcuserdata/
+*.xcuserstate
+notarization-result.json
+notarization-log.json
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments and local test state
+.venv/
+.pytest_cache/
+*.sqlite3
+.cache/
+artifacts/*.pte
+artifacts/*.pth
+artifacts/*.bin
+artifacts/*.json
+!artifacts/README.md
+DerivedData/
+
+# Local agent instructions
+CLAUDE.md
+AGENTS.md
+
+# MAC
+.DS_Store
