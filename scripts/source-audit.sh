@@ -11,6 +11,9 @@ EXTENSION_INFO="${PROJECT_DIR}/SafariTranslateToolbar Extension/Info.plist"
 EXTENSION_ENTITLEMENTS="${PROJECT_DIR}/SafariTranslateToolbar Extension/SafariTranslateToolbarExtension.entitlements"
 MANIFEST="${PROJECT_DIR}/SafariTranslateToolbar Extension/Resources/manifest.json"
 BACKGROUND="${PROJECT_DIR}/SafariTranslateToolbar Extension/Resources/background.js"
+APP_LOCALIZATION_DIR="${PROJECT_DIR}/SafariTranslateToolbar"
+EXTENSION_LOCALIZATION_DIR="${PROJECT_DIR}/SafariTranslateToolbar Extension"
+WEB_LOCALES_DIR="${EXTENSION_LOCALIZATION_DIR}/Resources/_locales"
 
 source "${ROOT_DIR}/Config/release.env"
 
@@ -32,6 +35,73 @@ done
 manifest_version="$(plutil -extract version raw -o - "${MANIFEST}")"
 [[ "${manifest_version}" == "${MARKETING_VERSION}" ]] || \
     fail "manifest 버전(${manifest_version})과 릴리스 버전(${MARKETING_VERSION})이 다릅니다."
+
+default_locale="$(plutil -extract default_locale raw -o - "${MANIFEST}")"
+[[ "${default_locale}" == "en" ]] || fail "WebExtension 기본 언어는 en이어야 합니다."
+
+for manifest_key in name description action.default_title; do
+    localized_value="$(plutil -extract "${manifest_key}" raw -o - "${MANIFEST}")"
+    [[ "${localized_value}" == __MSG_*__ ]] || \
+        fail "manifest의 ${manifest_key}가 현지화 메시지 키를 사용하지 않습니다."
+done
+
+for language in en ko; do
+    for strings_file in \
+        "${APP_LOCALIZATION_DIR}/${language}.lproj/Localizable.strings" \
+        "${APP_LOCALIZATION_DIR}/${language}.lproj/InfoPlist.strings" \
+        "${EXTENSION_LOCALIZATION_DIR}/${language}.lproj/Localizable.strings" \
+        "${EXTENSION_LOCALIZATION_DIR}/${language}.lproj/InfoPlist.strings" \
+        "${WEB_LOCALES_DIR}/${language}/messages.json"
+    do
+        [[ -f "${strings_file}" ]] || fail "현지화 파일이 없습니다: ${strings_file}"
+        if [[ "${strings_file}" == *.json ]]; then
+            jq -e . "${strings_file}" >/dev/null || fail "현지화 JSON 형식 오류: ${strings_file}"
+        else
+            plutil -lint "${strings_file}" >/dev/null || fail "현지화 파일 형식 오류: ${strings_file}"
+        fi
+    done
+
+    for message_key in \
+        extension_name extension_description action_title \
+        native_error_prefix unknown_error connection_error_prefix
+    do
+        plutil -extract "${message_key}.message" raw -o - \
+            "${WEB_LOCALES_DIR}/${language}/messages.json" >/dev/null || \
+            fail "${language} WebExtension 메시지가 없습니다: ${message_key}"
+    done
+
+    for string_key in \
+        error.safari_not_running.title error.safari_not_running.message \
+        error.no_safari_window.title error.no_safari_window.message \
+        error.translation_unavailable.title error.translation_unavailable.message \
+        error.automation_failed.title error.automation_failed.message button.ok
+    do
+        rg -Fq "\"${string_key}\" =" \
+            "${APP_LOCALIZATION_DIR}/${language}.lproj/Localizable.strings" || \
+            fail "${language} 앱 메시지가 없습니다: ${string_key}"
+    done
+
+    rg -Fq '"extension.unsupported_command" =' \
+        "${EXTENSION_LOCALIZATION_DIR}/${language}.lproj/Localizable.strings" || \
+        fail "${language} 네이티브 확장 오류 메시지가 없습니다."
+done
+
+for document in \
+    README.md README.ko.md \
+    docs/PRIVACY.md docs/PRIVACY.ko.md \
+    docs/DISTRIBUTION.md docs/DISTRIBUTION.ko.md \
+    docs/GITHUB_WORKFLOW.md docs/GITHUB_WORKFLOW.ko.md \
+    docs/RELEASE_NOTES_1.0.0.md docs/RELEASE_NOTES_1.0.0.ko.md \
+    docs/RELEASE_NOTES_1.1.0.md docs/RELEASE_NOTES_1.1.0.ko.md \
+    DMG_INSTALL.txt DMG_INSTALL.ko.txt
+do
+    [[ -s "${ROOT_DIR}/${document}" ]] || fail "영어/한국어 문서가 없습니다: ${document}"
+done
+
+rg -Fq "MARKETING_VERSION = ${MARKETING_VERSION};" "${PROJECT_FILE}" || \
+    fail "Xcode 마케팅 버전이 릴리스 버전과 다릅니다."
+rg -Fq "CURRENT_PROJECT_VERSION = ${BUILD_NUMBER};" "${PROJECT_FILE}" || \
+    fail "Xcode 빌드 번호가 릴리스 설정과 다릅니다."
 
 permission="$(plutil -extract permissions.0 raw -o - "${MANIFEST}")"
 [[ "${permission}" == "nativeMessaging" ]] || \

@@ -228,7 +228,7 @@ private enum TranslationResult {
     case noSafariWindow
     case permissionRequired
     case translationUnavailable
-    case automationFailed(String)
+    case automationFailed
 }
 
 private final class SafariTranslator {
@@ -310,9 +310,7 @@ private final class SafariTranslator {
             }
         }
 
-        return .automationFailed(
-            "Safari의 번역 버튼은 찾았지만 번역 언어 메뉴를 선택하지 못했습니다."
-        )
+        return .automationFailed
     }
 
     private func pressTranslationCommandInViewMenu(
@@ -610,14 +608,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         case .safariNotRunning:
             showError(
-                title: "Safari가 열려 있지 않습니다",
-                message: "Safari에서 번역할 페이지를 연 뒤 다시 클릭하세요."
+                title: localized("error.safari_not_running.title"),
+                message: localized("error.safari_not_running.message")
             )
 
         case .noSafariWindow:
             showError(
-                title: "Safari 창을 찾을 수 없습니다",
-                message: "번역할 Safari 창과 탭을 열어 주세요."
+                title: localized("error.no_safari_window.title"),
+                message: localized("error.no_safari_window.message")
             )
 
         case .permissionRequired:
@@ -626,15 +624,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         case .translationUnavailable:
             showError(
-                title: "이 페이지에서는 번역을 사용할 수 없습니다",
-                message:
-                    "Safari의 페이지 메뉴에 번역 사용 가능 표시가 있는지 확인해 주세요."
+                title: localized("error.translation_unavailable.title"),
+                message: localized("error.translation_unavailable.message")
             )
 
-        case let .automationFailed(message):
+        case .automationFailed:
             showError(
-                title: "번역을 시작하지 못했습니다",
-                message: message
+                title: localized("error.automation_failed.title"),
+                message: localized("error.automation_failed.message")
             )
         }
     }
@@ -647,10 +644,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alert.alertStyle = .informational
         alert.messageText = title
         alert.informativeText = message
-        alert.addButton(withTitle: "확인")
+        alert.addButton(withTitle: localized("button.ok"))
         NSApp.activate(ignoringOtherApps: true)
         alert.runModal()
         NSApp.terminate(nil)
+    }
+
+    private func localized(_ key: String) -> String {
+        NSLocalizedString(key, comment: "")
     }
 
     private func requestAccessibilityPermissionOnce() {

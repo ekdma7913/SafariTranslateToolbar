@@ -1,102 +1,75 @@
-# Developer ID 및 DMG 배포 절차
+# Developer ID and DMG distribution
 
-## 1. 배포 모델
+English | [한국어](DISTRIBUTION.ko.md)
 
-이 프로젝트는 Mac App Store가 아닌 웹사이트·파일 다운로드 방식으로 배포합니다. Apple 공식 직접 배포 흐름에 따라 모든 실행 코드를 Developer ID Application으로 서명하고, 최외곽 DMG를 Apple 공증 서비스에 제출한 뒤 티켓을 스테이플합니다.
+## 1. Distribution model
 
-확장 프로그램용 별도 설치 파일은 만들지 않습니다. `SafariTranslateToolbar Extension.appex`는 컨테이너 앱 안에 포함되며, 앱과 같은 Team으로 서명됩니다.
+This project is distributed as a direct web download rather than through the Mac App Store. Every executable is signed with Developer ID Application, the outer DMG is submitted to Apple's notarization service, and the notarization ticket is stapled. The Safari extension is embedded in the container app and signed by the same Team.
 
-## 2. 서명 설정의 이유
+## 2. Signing configuration
 
-- 컨테이너 앱: App Sandbox `NO`, Hardened Runtime `YES`
-  - Safari UI를 손쉬운 사용 API로 제어해야 하므로 직접 배포 앱의 샌드박스를 끕니다.
-- Safari 확장: App Sandbox `YES`, Hardened Runtime `YES`
-  - entitlement는 `com.apple.security.app-sandbox = true` 하나뿐입니다.
-- 앱과 확장: Release에서 `Developer ID Application`, secure timestamp 사용
-- Release: `get-task-allow`와 Xcode base entitlement 주입 금지
-- 네트워크, 사용자 선택 파일, App Group capability 없음
+- Container app: App Sandbox `NO`, Hardened Runtime `YES`
+- Safari extension: App Sandbox `YES`, Hardened Runtime `YES`
+- App and extension: Developer ID Application with secure timestamp in Release
+- No `get-task-allow`, network, user-selected file, or App Group capability
 
-앱에서 사용하는 Apple 프레임워크는 `SafariServices`, `AppKit/Cocoa`, `ApplicationServices`뿐이며 제3자 라이브러리나 원격 서비스가 없습니다.
+The app uses only Apple's `SafariServices`, `AppKit/Cocoa`, and `ApplicationServices` frameworks. It has no third-party library or remote service.
 
-## 3. 서명 DMG 생성
+## 3. Build a signed DMG
 
 ```sh
 ./scripts/release.sh
 ```
 
-스크립트가 수행하는 일:
+The script audits source, permissions, and localization resources; creates a universal Xcode Archive; then produces a signed UDZO DMG containing the app plus English and Korean installation guides. It also creates a matching `.sha256` file. The certificate name is not stored in source: the script finds a Keychain identity matching the Team ID.
 
-1. manifest 권한, 식별자, 개인 경로 흔적을 정적 점검합니다.
-2. shared scheme의 Release 구성으로 universal Xcode Archive를 생성합니다.
-3. `developer-id` 방식으로 distribution-signed 앱을 export합니다.
-4. 앱과 내장 확장의 Team, Bundle ID, timestamp, Hardened Runtime, entitlement, 아키텍처를 검증합니다.
-5. 앱과 `/Applications` 링크를 포함한 읽기 전용 zip 압축 UDZO DMG를 만듭니다.
-6. DMG를 Developer ID Application으로 서명하고 무결성을 검증합니다.
-7. 최종 DMG와 같은 이름의 `.sha256` 무결성 파일을 만듭니다. 파일 안에는 로컬 절대 경로가 들어가지 않습니다.
-
-인증서 이름은 소스에 기록하지 않습니다. 스크립트가 Team ID와 일치하는 Developer ID Application identity를 Keychain에서 찾습니다. 인증서를 갱신해도 설정 파일의 개인 이름이나 인증서 해시를 수정할 필요가 없습니다.
-
-## 4. 공증 자격 증명 저장
+## 4. Store notarization credentials
 
 ```sh
 ./scripts/configure-notary.sh
 ```
 
-프로필 기본 이름은 `safari-translate-notary`입니다. Apple ID와 앱 전용 암호는 Apple의 `notarytool` 대화형 입력에서만 제공되며 macOS Keychain에 저장됩니다. 저장소, 환경 파일, README, 셸 히스토리에 암호를 넣지 마세요.
+Provide the Apple ID and app-specific password only in Apple's interactive prompt. They are stored in macOS Keychain, not in the repository, environment files, README, or shell command line. Do not copy App Store Connect `.p8` private keys into the repository.
 
-조직에서 App Store Connect API 키를 쓸 경우에는 Apple 공식 `notarytool store-credentials` 옵션으로 별도 프로필을 만든 뒤 `NOTARY_PROFILE`만 바꿀 수 있습니다. `.p8` 키는 이 저장소에 복사하지 않습니다.
-
-## 5. 공증 및 스테이플
+## 5. Notarize and staple
 
 ```sh
-./scripts/notarize.sh dist/SafariTranslateToolbar-1.0.0.dmg
+./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.0.dmg
 ```
 
-스크립트는 다음을 수행합니다.
+The script checks the DMG signature, runs `notarytool submit --wait`, saves the result and log, staples only an Accepted submission, and verifies the staple and Gatekeeper assessment.
 
-1. 공증 전 DMG 서명을 검증합니다.
-2. `notarytool submit --wait`로 제출합니다.
-3. 제출 결과를 `dist/notarization-result.json`에 저장합니다.
-4. 상세 로그를 `dist/notarization-log.json`에 저장합니다.
-5. 상태가 `Accepted`일 때만 `stapler staple`을 실행합니다.
-6. staple, DMG 서명, `spctl` Gatekeeper 평가를 최종 확인합니다.
+## 6. Manual pre-release checks
 
-`altool`은 사용하지 않습니다. Apple은 공증 제출에 `notarytool` 사용을 요구합니다.
+1. Install from a quarantined DMG.
+2. Copy the app to `/Applications`.
+3. Confirm the first launch opens Safari extension settings without a Gatekeeper warning.
+4. Check app and extension names and messages in both English and Korean environments.
+5. Enable the extension and confirm the toolbar button appears.
+6. Allow Accessibility on a translatable page and run translation.
+7. Restart the apps and Mac and confirm permission and operation remain intact.
+8. Deny permission and confirm the request does not loop.
 
-## 6. 배포 전 수동 확인
+## 7. GitHub Release
 
-자동 검증 뒤에도 아래 실제 사용자 흐름을 별도 Mac 또는 새 사용자 계정에서 확인합니다.
-
-1. DMG를 웹 다운로드나 AirDrop으로 전달해 quarantine이 적용되게 합니다.
-2. DMG를 열고 앱을 `/Applications`에 복사합니다.
-3. 앱을 처음 실행했을 때 Gatekeeper 경고 없이 Safari 확장 설정이 열리는지 확인합니다.
-4. Safari에서 확장을 켜고 도구 막대 버튼이 나타나는지 확인합니다.
-5. 번역 가능한 페이지에서 최초 손쉬운 사용 요청을 허용합니다.
-6. 버튼을 다시 눌렀을 때 Safari의 Apple 번역이 실행되는지 확인합니다.
-7. 앱과 Safari를 재실행하고 Mac도 재부팅한 뒤 권한과 동작이 유지되는지 확인합니다.
-8. 권한을 거부했을 때 시스템 요청이 무한 반복되지 않는지 확인합니다.
-
-## 7. GitHub Release 업로드
-
-공증과 수동 확인을 모두 마친 DMG만 GitHub Release에 첨부합니다. 소스 저장소에서는 `dist/`를 추적하지 않습니다.
+Attach only a notarized and manually verified DMG to a GitHub Release. `dist/` is intentionally not tracked by Git.
 
 ```sh
-gh release create v1.0.0 \
-  dist/SafariTranslateToolbar-1.0.0.dmg \
-  dist/SafariTranslateToolbar-1.0.0.dmg.sha256 \
-  --title "Safari 번역 툴바 1.0.0" \
-  --notes-file release-notes.md
+gh release create v1.1.0 \
+  dist/SafariTranslateToolbar-1.1.0.dmg \
+  dist/SafariTranslateToolbar-1.1.0.dmg.sha256 \
+  --title "Safari Translate Toolbar 1.1.0" \
+  --notes-file docs/RELEASE_NOTES_1.1.0.md
 ```
 
-태그와 앱 버전을 일치시키고, 업로드가 끝나면 브라우저의 Release 페이지에서 두 파일이 실제로 다운로드되는지 확인합니다.
+Do not silently replace an already published asset with the same filename. Create a new version so users can identify the binary they downloaded.
 
-## 8. 공개 후 유지해야 하는 값
+## 8. Values to keep stable
 
-- 앱 Bundle ID
-- 확장 Bundle ID
+- App and extension bundle identifiers
 - Developer Team ID
 - URL scheme
-- 앱 실행 파일 이름
-- `/Applications` 설치 흐름
+- App executable name
+- `/Applications` installation flow
 
-인증서가 만료되면 같은 Team의 새 Developer ID Application 인증서로 다음 릴리스를 서명합니다. 이미 유효한 인증서로 timestamp·공증된 과거 릴리스는 그 서명 시점을 검증할 수 있습니다.
+When a certificate expires, sign the next release with a new Developer ID Application certificate from the same Team.

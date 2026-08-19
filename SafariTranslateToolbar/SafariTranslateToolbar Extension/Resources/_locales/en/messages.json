@@ -1,0 +1,20 @@
+{
+    "extension_name": {
+        "message": "Safari Translate Button"
+    },
+    "extension_description": {
+        "message": "Run Safari's built-in Apple translation for the current page from the toolbar."
+    },
+    "action_title": {
+        "message": "Translate This Page with Apple Translate"
+    },
+    "native_error_prefix": {
+        "message": "The Safari translation app could not process the command:"
+    },
+    "unknown_error": {
+        "message": "Unknown error"
+    },
+    "connection_error_prefix": {
+        "message": "Could not connect to the Safari translation app:"
+    }
+}

@@ -14,6 +14,11 @@
 		9A151C9B302DE41700C71AC5 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 9A151C98302DE41700C71AC5 /* background.js */; };
 		9A151C9C302DE41700C71AC5 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 9A151C99302DE41700C71AC5 /* images */; };
 		9A151C9D302DE41700C71AC5 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9A151C9A302DE41700C71AC5 /* manifest.json */; };
+		B10000000000000000000001 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* Localizable.strings */; };
+		B10000000000000000000002 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000022 /* InfoPlist.strings */; };
+		B10000000000000000000003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000023 /* Localizable.strings */; };
+		B10000000000000000000004 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000024 /* InfoPlist.strings */; };
+		B10000000000000000000005 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000019 /* _locales */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +57,15 @@
 		9A151C99302DE41700C71AC5 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
 		9A151C9A302DE41700C71AC5 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
 		9A151C9E302DE41700C71AC5 /* SafariTranslateToolbarExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SafariTranslateToolbarExtension.entitlements; sourceTree = "<group>"; };
+		B10000000000000000000011 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B10000000000000000000012 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B10000000000000000000013 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B10000000000000000000014 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B10000000000000000000015 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B10000000000000000000016 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B10000000000000000000017 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B10000000000000000000018 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B10000000000000000000019 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = Resources/_locales; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +110,8 @@
 				9A151C6E302DE41600C71AC5 /* AppDelegate.swift */,
 				9A151C7F302DE41700C71AC5 /* Assets.xcassets */,
 				9A151C81302DE41700C71AC5 /* Info.plist */,
+				B10000000000000000000021 /* Localizable.strings */,
+				B10000000000000000000022 /* InfoPlist.strings */,
 			);
 			path = SafariTranslateToolbar;
 			sourceTree = "<group>";
@@ -107,6 +123,8 @@
 				9A151C8B302DE41700C71AC5 /* SafariWebExtensionHandler.swift */,
 				9A151C9E302DE41700C71AC5 /* SafariTranslateToolbarExtension.entitlements */,
 				9A151C8D302DE41700C71AC5 /* Info.plist */,
+				B10000000000000000000023 /* Localizable.strings */,
+				B10000000000000000000024 /* InfoPlist.strings */,
 			);
 			path = "SafariTranslateToolbar Extension";
 			sourceTree = "<group>";
@@ -117,6 +135,7 @@
 				9A151C98302DE41700C71AC5 /* background.js */,
 				9A151C99302DE41700C71AC5 /* images */,
 				9A151C9A302DE41700C71AC5 /* manifest.json */,
+				B10000000000000000000019 /* _locales */,
 			);
 			name = Resources;
 			path = "SafariTranslateToolbar Extension";
@@ -188,6 +207,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ko,
 				Base,
 			);
 			mainGroup = 9A151C62302DE41600C71AC5;
@@ -209,6 +229,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A151C80302DE41700C71AC5 /* Assets.xcassets in Resources */,
+				B10000000000000000000001 /* Localizable.strings in Resources */,
+				B10000000000000000000002 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +241,9 @@
 				9A151C9C302DE41700C71AC5 /* images in Resources */,
 				9A151C9D302DE41700C71AC5 /* manifest.json in Resources */,
 				9A151C9B302DE41700C71AC5 /* background.js in Resources */,
+				B10000000000000000000003 /* Localizable.strings in Resources */,
+				B10000000000000000000004 /* InfoPlist.strings in Resources */,
+				B10000000000000000000005 /* _locales in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +267,45 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		B10000000000000000000021 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B10000000000000000000011 /* en */,
+				B10000000000000000000012 /* ko */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000022 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B10000000000000000000013 /* en */,
+				B10000000000000000000014 /* ko */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000023 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B10000000000000000000015 /* en */,
+				B10000000000000000000016 /* ko */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000024 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B10000000000000000000017 /* en */,
+				B10000000000000000000018 /* ko */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin PBXTargetDependency section */
 		9A151C89302DE41700C71AC5 /* PBXTargetDependency */ = {
@@ -379,13 +443,13 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "SafariTranslateToolbar Extension/SafariTranslateToolbarExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 95788X96A7;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SafariTranslateToolbar Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Safari 번역 버튼";
+				INFOPLIST_KEY_CFBundleDisplayName = "Safari Translate Button";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -393,7 +457,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -416,13 +480,13 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 95788X96A7;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SafariTranslateToolbar Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Safari 번역 버튼";
+				INFOPLIST_KEY_CFBundleDisplayName = "Safari Translate Button";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -430,7 +494,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -453,13 +517,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 95788X96A7;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SafariTranslateToolbar/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Safari 번역 툴바";
+				INFOPLIST_KEY_CFBundleDisplayName = "Safari Translate Toolbar";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -467,7 +531,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -491,13 +555,13 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 95788X96A7;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SafariTranslateToolbar/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Safari 번역 툴바";
+				INFOPLIST_KEY_CFBundleDisplayName = "Safari Translate Toolbar";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -505,7 +569,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				OTHER_LDFLAGS = (
 					"-framework",

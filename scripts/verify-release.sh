@@ -82,6 +82,26 @@ if [[ -n "${app_path}" ]]; then
     [[ "${app_identifier}" == "${APP_BUNDLE_ID}" ]] || fail "앱 bundle ID가 다릅니다."
     [[ "${extension_identifier}" == "${EXTENSION_BUNDLE_ID}" ]] || fail "확장 bundle ID가 다릅니다."
 
+    for language in en ko; do
+        for localized_resource in \
+            "${app_path}/Contents/Resources/${language}.lproj/Localizable.strings" \
+            "${app_path}/Contents/Resources/${language}.lproj/InfoPlist.strings" \
+            "${extension_path}/Contents/Resources/${language}.lproj/Localizable.strings" \
+            "${extension_path}/Contents/Resources/${language}.lproj/InfoPlist.strings" \
+            "${extension_path}/Contents/Resources/_locales/${language}/messages.json"
+        do
+            [[ -f "${localized_resource}" ]] || \
+                fail "서명된 앱에 현지화 리소스가 없습니다: ${localized_resource}"
+            if [[ "${localized_resource}" == *.json ]]; then
+                jq -e . "${localized_resource}" >/dev/null || \
+                    fail "서명된 앱의 현지화 JSON 형식 오류: ${localized_resource}"
+            else
+                plutil -lint "${localized_resource}" >/dev/null || \
+                    fail "서명된 앱의 현지화 리소스 형식 오류: ${localized_resource}"
+            fi
+        done
+    done
+
     codesign --verify --deep --strict --verbose=2 "${app_path}"
     verify_signed_code "${app_path}" "${APP_BUNDLE_ID}"
     verify_signed_code "${extension_path}" "${EXTENSION_BUNDLE_ID}"

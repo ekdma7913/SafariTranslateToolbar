@@ -1,4 +1,7 @@
 browser.action.onClicked.addListener(async () => {
+    const message = (key, fallback) =>
+        browser.i18n.getMessage(key) || fallback;
+
     try {
         const response = await browser.runtime.sendNativeMessage(
             "com.team95788x96a7.safari-translate-toolbar",
@@ -7,11 +10,20 @@ browser.action.onClicked.addListener(async () => {
 
         if (!response?.ok) {
             console.error(
-                "Safari 번역 앱이 명령을 처리하지 못했습니다:",
-                response?.error ?? "알 수 없는 오류"
+                message(
+                    "native_error_prefix",
+                    "The Safari translation app could not process the command:"
+                ),
+                response?.error ?? message("unknown_error", "Unknown error")
             );
         }
     } catch (error) {
-        console.error("Safari 번역 앱에 연결하지 못했습니다:", error);
+        console.error(
+            message(
+                "connection_error_prefix",
+                "Could not connect to the Safari translation app:"
+            ),
+            error
+        );
     }
 });

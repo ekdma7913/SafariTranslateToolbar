@@ -1,0 +1,9 @@
+"error.safari_not_running.title" = "Safari가 열려 있지 않습니다";
+"error.safari_not_running.message" = "Safari에서 번역할 페이지를 연 뒤 도구 막대 버튼을 다시 클릭하세요.";
+"error.no_safari_window.title" = "Safari 창을 찾을 수 없습니다";
+"error.no_safari_window.message" = "번역할 Safari 창과 탭을 열어 주세요.";
+"error.translation_unavailable.title" = "이 페이지에서는 번역을 사용할 수 없습니다";
+"error.translation_unavailable.message" = "Safari의 페이지 메뉴에 번역 사용 가능 표시가 있는지 확인해 주세요.";
+"error.automation_failed.title" = "번역을 시작하지 못했습니다";
+"error.automation_failed.message" = "Safari의 번역 버튼은 찾았지만 번역 언어 메뉴를 선택하지 못했습니다.";
+"button.ok" = "확인";
