@@ -1,0 +1,9 @@
+"error.safari_not_running.title" = "Safari Is Not Open";
+"error.safari_not_running.message" = "Open the page you want to translate in Safari, then click the toolbar button again.";
+"error.no_safari_window.title" = "Safari Window Not Found";
+"error.no_safari_window.message" = "Open a Safari window and the tab you want to translate.";
+"error.translation_unavailable.title" = "Translation Is Not Available on This Page";
+"error.translation_unavailable.message" = "Check whether Safari shows that translation is available in the page menu.";
+"error.automation_failed.title" = "Could Not Start Translation";
+"error.automation_failed.message" = "Safari's translation button was found, but the translation language menu could not be selected.";
+"button.ok" = "OK";

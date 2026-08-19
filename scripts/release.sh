@@ -8,7 +8,7 @@ PROJECT_DIR="${ROOT_DIR}/SafariTranslateToolbar"
 PROJECT_FILE="${PROJECT_DIR}/SafariTranslateToolbar.xcodeproj"
 SCHEME="SafariTranslateToolbar"
 PRODUCT_NAME="SafariTranslateToolbar"
-DISPLAY_NAME="Safari 번역 툴바"
+DISPLAY_NAME="Safari Translate Toolbar"
 DIST_DIR="${ROOT_DIR}/dist"
 BUILD_DIR="${ROOT_DIR}/build"
 
@@ -88,7 +88,8 @@ xcodebuild \
 mkdir -p "${dmg_root}"
 ditto "${app_path}" "${dmg_root}/${PRODUCT_NAME}.app"
 ln -s /Applications "${dmg_root}/Applications"
-ditto "${ROOT_DIR}/DMG_INSTALL.txt" "${dmg_root}/설치 안내.txt"
+ditto "${ROOT_DIR}/DMG_INSTALL.txt" "${dmg_root}/Install Guide.txt"
+ditto "${ROOT_DIR}/DMG_INSTALL.ko.txt" "${dmg_root}/설치 안내.txt"
 
 print -- "UDZO DMG 생성 및 서명 중..."
 hdiutil create \

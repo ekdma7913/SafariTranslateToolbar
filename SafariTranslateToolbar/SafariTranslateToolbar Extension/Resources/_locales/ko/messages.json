@@ -1,0 +1,20 @@
+{
+    "extension_name": {
+        "message": "Safari 번역 버튼"
+    },
+    "extension_description": {
+        "message": "Safari 도구 막대에서 현재 페이지의 내장 Apple 번역을 바로 실행합니다."
+    },
+    "action_title": {
+        "message": "이 페이지를 Apple 번역으로 번역"
+    },
+    "native_error_prefix": {
+        "message": "Safari 번역 앱이 명령을 처리하지 못했습니다:"
+    },
+    "unknown_error": {
+        "message": "알 수 없는 오류"
+    },
+    "connection_error_prefix": {
+        "message": "Safari 번역 앱에 연결하지 못했습니다:"
+    }
+}

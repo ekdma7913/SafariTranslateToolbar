@@ -17,7 +17,10 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             complete(
                 context,
                 ok: false,
-                error: "지원하지 않는 명령입니다."
+                error: NSLocalizedString(
+                    "extension.unsupported_command",
+                    comment: "Unsupported native messaging command"
+                )
             )
             return
         }

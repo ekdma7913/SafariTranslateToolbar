@@ -1,47 +1,47 @@
-# 개인정보 및 권한 점검
+# Privacy and permissions
 
-## 수집하는 데이터
+English | [한국어](PRIVACY.ko.md)
 
-없습니다.
+## Data collection
 
-이 앱은 계정, 서버, 네트워크 요청, 분석 SDK, 광고 SDK, 충돌 수집기, 업데이트 추적기, 원격 로그를 사용하지 않습니다. 소스에도 개발자 개인 이름, 이메일, 사용자 홈 경로, Apple ID, 공증 암호를 저장하지 않습니다.
+None.
 
-서명된 앱 파일에는 Apple이 발급한 Developer ID 인증서의 법적 서명자 이름과 Team ID가 표시됩니다. 이는 Gatekeeper가 배포자를 검증하는 공개 서명 정보이므로 제거할 수 없고 제거해서도 안 됩니다. 소스 설정에는 공개 식별에 필요한 Team ID만 들어 있습니다.
+This app has no account system, server, network requests, analytics SDK, advertising SDK, crash collector, update tracker, or remote logging. The source does not store the developer's personal name, email address, home-directory path, Apple ID, or notarization password.
 
-## Safari 확장 권한
+The signed app contains the legal signer name and Team ID from Apple's Developer ID certificate. This is public signing information required by Gatekeeper to verify the distributor. The source configuration contains only the Team ID needed for public identity.
 
-manifest가 선언하는 권한은 `nativeMessaging` 하나입니다.
+## Safari extension permissions
 
-- 웹페이지 내용 읽기 권한 없음
-- 모든 웹사이트 접근 권한 없음
-- content script 없음
-- 탭의 URL·제목 수집 없음
-- 클립보드 권한 없음
-- 네트워크 권한 없음
+The manifest declares exactly one permission: `nativeMessaging`.
 
-`nativeMessaging`은 버튼 클릭 시 `{ "command": "translate" }`라는 고정된 로컬 명령을 컨테이너 앱에 전달하는 데만 씁니다. 페이지 본문, URL, 쿠키, 입력 내용은 전달하지 않습니다.
+- No permission to read webpage content
+- No access to all websites
+- No content scripts
+- No collection of tab URLs or titles
+- No clipboard permission
+- No network permission
 
-## macOS 손쉬운 사용 권한
+When the toolbar button is clicked, `nativeMessaging` sends only the fixed local command `{ "command": "translate" }` to the container app. It does not send page content, URLs, cookies, or form input.
 
-Safari는 내장 Apple 번역을 확장에서 직접 실행하는 공개 API를 제공하지 않습니다. 따라서 컨테이너 앱이 손쉬운 사용 API로 현재 Safari 창의 번역 메뉴를 찾아 누릅니다.
+## macOS Accessibility permission
 
-이 권한으로 가능한 범위가 넓기 때문에 구현은 다음처럼 제한합니다.
+Safari does not provide a public extension API for starting its built-in Apple translation. The container app therefore uses macOS Accessibility to find and press the translation command in the current Safari window.
 
-- 대상 프로세스를 Bundle ID `com.apple.Safari`로 고정
-- Safari 창에서는 역할(role) 정보로 도구 막대 컨테이너만 찾음
-- 도구 막대와 열린 메뉴·팝오버 안에서 번역 관련 컨트롤의 제목·설명·도움말·식별자만 검색
-- 페이지 입력값이 노출될 수 있는 `AXValue`는 읽지 않음
-- 검색 결과를 파일이나 네트워크에 기록하지 않음
-- 페이지 본문을 읽거나 저장하는 기능 없음
-- 번역 명령을 실행하면 앱 즉시 종료
+- The target process is fixed to bundle ID `com.apple.Safari`.
+- The search is constrained by role to Safari's toolbar, menus, and popovers.
+- It checks only the titles, descriptions, help text, and identifiers of translation-related controls.
+- It does not read `AXValue`, which could expose page input values.
+- It does not write search results to disk or send them over a network.
+- It does not read or store webpage content.
+- It exits immediately after starting translation.
 
-권한 상태는 macOS의 TCC가 관리합니다. 앱은 `UserDefaults`에 시스템 권한 요청을 이미 시도했는지를 나타내는 boolean 하나만 저장합니다. 이 값에는 사용자 정보가 없으며, 시스템 팝업을 버튼 클릭마다 반복 요청하지 않기 위한 용도입니다.
+macOS TCC manages the permission itself. The app stores one boolean in `UserDefaults` indicating that it already attempted the system permission prompt. This contains no user information and prevents a repeated prompt loop.
 
-## App Sandbox와 entitlement
+## App Sandbox and entitlements
 
-- 컨테이너 앱: Safari UI 자동화 때문에 App Sandbox를 사용하지 않음
-- 내장 Safari 확장: App Sandbox 사용
-- 네트워크·파일·App Group·`get-task-allow` entitlement 없음
-- 두 실행 타깃 모두 Hardened Runtime 사용
+- Container app: App Sandbox disabled because Safari UI automation requires it
+- Embedded Safari extension: App Sandbox enabled
+- No network, file, App Group, or `get-task-allow` entitlement
+- Hardened Runtime enabled for both executable targets
 
-릴리스 스크립트와 `source-audit.sh`는 `AXValue`, 네트워크·파일·클립보드 API 또는 확장 권한이 추가되면 실패 처리합니다. 새 권한이나 데이터 수집 기능을 추가한다면 코드 변경 전에 이 문서, manifest, 사용자 고지를 함께 갱신해야 합니다.
+Release checks fail if `AXValue`, network/file/clipboard APIs, extension permissions, or required localization resources change unexpectedly.
