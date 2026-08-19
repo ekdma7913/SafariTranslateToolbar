@@ -33,7 +33,7 @@ then
 fi
 
 submission_id="$(plutil -extract id raw -o - "${result_path}")"
-status="$(plutil -extract status raw -o - "${result_path}")"
+notary_status="$(plutil -extract status raw -o - "${result_path}")"
 
 if ! xcrun notarytool log "${submission_id}" \
     --keychain-profile "${profile}" \
@@ -42,12 +42,11 @@ then
     print -u2 -- "경고: 공증 결과 로그를 내려받지 못했습니다. 제출 ID: ${submission_id}"
 fi
 
-[[ "${status}" == "Accepted" ]] || \
-    fail "공증 상태가 ${status}입니다. ${log_path}를 확인하세요."
+[[ "${notary_status}" == "Accepted" ]] || \
+    fail "공증 상태가 ${notary_status}입니다. ${log_path}를 확인하세요."
 
 print -- "공증 티켓을 DMG에 스테이플하는 중..."
 xcrun stapler staple "${dmg_path}"
 "${SCRIPT_DIR}/verify-release.sh" --dmg "${dmg_path}" --notarized
 
 print -- "공증·스테이플 완료: ${dmg_path}"
-
