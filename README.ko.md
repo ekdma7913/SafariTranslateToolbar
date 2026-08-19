@@ -1,6 +1,6 @@
 # Safari 번역 툴바
 
-[English](README.md) | 한국어
+[KO](README.ko.md) | [EN](README.md)
 
 Safari 주소창 옆 도구 막대 버튼으로 Safari의 **기존 Apple 번역 기능**을 실행하는 macOS 앱과 Safari Web Extension입니다. 별도 번역 서버나 페이지 스크립트를 사용하지 않습니다.
 

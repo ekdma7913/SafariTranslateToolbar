@@ -1,6 +1,6 @@
 # Safari Translate Toolbar
 
-English | [한국어](README.ko.md)
+[KO](README.ko.md) | [EN](README.md)
 
 A macOS app and Safari Web Extension that runs Safari's **built-in Apple translation** from a toolbar button beside the address bar. It does not use a separate translation server or inject scripts into webpages.
 
