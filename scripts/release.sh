@@ -28,6 +28,7 @@ case "${1:-}" in
 esac
 
 "${SCRIPT_DIR}/source-audit.sh"
+"${SCRIPT_DIR}/test.sh"
 
 identity="${DEVELOPER_ID_IDENTITY:-}"
 if [[ -z "${identity}" ]]; then

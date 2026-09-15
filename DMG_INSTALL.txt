@@ -6,4 +6,6 @@ Install Safari Translate Toolbar
 4. If the button is missing, add it using Customize Toolbar in Safari.
 5. On a translatable page, click the button and allow the one-time macOS Accessibility request.
 
+If permission needs attention, open System Settings > Privacy & Security > Device Control & Data Access (macOS 27), or Accessibility (earlier macOS), and enable SafariTranslateToolbar.
+
 This extension has no permission to read webpage content and does not use network access or analytics.

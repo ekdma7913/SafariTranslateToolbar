@@ -2,7 +2,7 @@ import Cocoa
 import ApplicationServices
 import SafariServices
 
-private enum TranslationMatcher {
+nonisolated enum TranslationMatcher {
     private static let excludedTerms = [
         "report", "issue", "feedback",
         "문제", "리포트", "신고",
@@ -57,7 +57,16 @@ private enum TranslationMatcher {
         "çevir", "çeviri",
     ]
 
-    static func menuScore(_ text: String) -> Int {
+    static func menuScore(_ text: String, identifier: String = "") -> Int {
+        // Observed in Safari 27. These are implementation details, so retain
+        // localized-label fallback for Safari versions with different IDs.
+        if identifier.hasPrefix("Translate-"), identifier.count > "Translate-".count {
+            return 120
+        }
+        if ["ViewOriginalTranslation", "ReportTranslationIssue", "PreferredLanguages"]
+            .contains(identifier) {
+            return 0
+        }
         let normalized = text
             .folding(
                 options: [.caseInsensitive, .diacriticInsensitive],
@@ -84,9 +93,51 @@ private enum TranslationMatcher {
         return 0
     }
 
-    static func buttonScore(_ text: String) -> Int {
+    static func buttonScore(_ text: String, identifier: String = "") -> Int {
+        if identifier.hasPrefix("WebExtension-") {
+            return 0
+        }
+        if identifier == "TranslationButton" {
+            return 100
+        }
         let score = menuScore(text)
         return score == 100 ? 80 : score
+    }
+}
+
+nonisolated enum SafariChromeTraversal {
+    // A page can expose its own AXToolbar/AXMenu roles. Stop at the web area
+    // before requesting its children, rather than filtering page nodes later.
+    static func descendants<Element>(
+        of root: Element,
+        maximumDepth: Int,
+        maximumElements: Int,
+        role: (Element) -> String?,
+        children: (Element) -> [Element]
+    ) -> [Element] {
+        guard maximumDepth > 0, maximumElements > 0 else { return [] }
+        var result: [Element] = []
+        var queue: [(Element, Int)] = [(root, 0)]
+        var index = 0
+
+        while index < queue.count {
+            let (element, depth) = queue[index]
+            index += 1
+            guard let elementRole = role(element), elementRole != "AXWebArea" else {
+                continue
+            }
+            if depth > 0 {
+                result.append(element)
+            }
+            guard depth < maximumDepth else { continue }
+            // Bound the queue as well as the result, even for a wide tree.
+            let remaining = maximumElements - (queue.count - 1)
+            guard remaining > 0 else { continue }
+            queue.append(contentsOf: children(element).prefix(remaining).map {
+                ($0, depth + 1)
+            })
+        }
+        return result
     }
 }
 
@@ -160,28 +211,13 @@ private struct AccessibilityTree {
         maximumDepth: Int,
         maximumElements: Int = 2_000
     ) -> [AXUIElement] {
-        var result: [AXUIElement] = []
-        var queue: [(AXUIElement, Int)] = [(root, 0)]
-        var index = 0
-
-        while index < queue.count && result.count < maximumElements {
-            let (element, depth) = queue[index]
-            index += 1
-
-            if depth > 0 {
-                result.append(element)
-            }
-
-            guard depth < maximumDepth else {
-                continue
-            }
-
-            for child in children(of: element) {
-                queue.append((child, depth + 1))
-            }
-        }
-
-        return result
+        SafariChromeTraversal.descendants(
+            of: root,
+            maximumDepth: maximumDepth,
+            maximumElements: maximumElements,
+            role: { string($0, attribute: kAXRoleAttribute as CFString) },
+            children: { children(of: $0) }
+        )
     }
 
     static func bestElement(
@@ -189,7 +225,7 @@ private struct AccessibilityTree {
         maximumDepth: Int,
         acceptedRoles: Set<String>,
         minimumScore: Int = 1,
-        score: (String) -> Int
+        score: (String, String) -> Int
     ) -> AXUIElement? {
         descendants(of: root, maximumDepth: maximumDepth)
             .compactMap { element -> (AXUIElement, Int)? in
@@ -211,7 +247,10 @@ private struct AccessibilityTree {
                     return nil
                 }
 
-                let elementScore = score(searchableText(of: element))
+                let identifier = string(
+                    element, attribute: kAXIdentifierAttribute as CFString
+                ) ?? ""
+                let elementScore = score(searchableText(of: element), identifier)
                 return elementScore >= minimumScore
                     ? (element, elementScore)
                     : nil
@@ -222,7 +261,7 @@ private struct AccessibilityTree {
 }
 
 private enum TranslationResult {
-    case translated
+    case commandInvoked
     case alreadyTranslated
     case safariNotRunning
     case noSafariWindow
@@ -272,27 +311,44 @@ private final class SafariTranslator {
             return .safariNotRunning
         }
 
-        safari.activate(options: [.activateAllWindows])
+        // Activation is asynchronous on current macOS. Do not search stale
+        // focus immediately, or bring every Safari window to the front.
+        if !safari.isActive {
+            if #available(macOS 14.0, *) {
+                NSApp.yieldActivation(to: safari)
+                _ = safari.activate(from: .current, options: [])
+            } else {
+                _ = safari.activate(options: [])
+            }
+        }
         let application = AXUIElementCreateApplication(
             safari.processIdentifier
         )
+        AXUIElementSetMessagingTimeout(application, 0.3)
 
-        guard let focusedWindow = AccessibilityTree.element(
-            application,
-            attribute: kAXFocusedWindowAttribute as CFString
-        ) else {
+        var focusedWindow: AXUIElement?
+        let focusDeadline = ProcessInfo.processInfo.systemUptime + 1.0
+        repeat {
+            if safari.isActive {
+                focusedWindow = AccessibilityTree.element(
+                    application,
+                    attribute: kAXFocusedWindowAttribute as CFString
+                )
+                if focusedWindow != nil { break }
+            }
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+        } while ProcessInfo.processInfo.systemUptime < focusDeadline
+
+        guard safari.isActive else { return .automationFailed }
+        guard let focusedWindow else {
             return .noSafariWindow
-        }
-
-        if pageAppearsTranslated(in: focusedWindow) {
-            return .alreadyTranslated
         }
 
         // Hidden menu descendants can accept AXPress without actually invoking
         // their command. Open Safari's View menu first, then press only the
         // visible “Translate to …” menu item.
-        if pressTranslationCommandInViewMenu(in: application) {
-            return .translated
+        if let result = pressTranslationCommandInViewMenu(in: application) {
+            return result
         }
 
         guard pressTranslationButton(in: focusedWindow) else {
@@ -306,7 +362,7 @@ private final class SafariTranslator {
             if pressTranslationCommandInOpenControl(
                 in: application
             ) {
-                return .translated
+                return .commandInvoked
             }
         }
 
@@ -315,16 +371,21 @@ private final class SafariTranslator {
 
     private func pressTranslationCommandInViewMenu(
         in application: AXUIElement
-    ) -> Bool {
+    ) -> TranslationResult? {
         guard let menuBar = AccessibilityTree.element(
             application,
             attribute: kAXMenuBarAttribute as CFString
         ) else {
-            return false
+            return nil
         }
 
         let menuBarItems = AccessibilityTree.children(of: menuBar)
-        guard let viewMenuItem = menuBarItems.first(where: {
+        let identifiedViewMenu = menuBarItems.first {
+            AccessibilityTree.string(
+                $0, attribute: kAXIdentifierAttribute as CFString
+            ) == "SafariViewMenu"
+        }
+        guard let viewMenuItem = identifiedViewMenu ?? menuBarItems.first(where: {
             guard let title = AccessibilityTree.string(
                 $0,
                 attribute: kAXTitleAttribute as CFString
@@ -333,16 +394,49 @@ private final class SafariTranslator {
             }
             return viewMenuTitles.contains(title)
         }) else {
-            return false
+            return nil
         }
 
         guard press(viewMenuItem) else {
-            return false
+            return nil
         }
 
         RunLoop.current.run(
             until: Date(timeIntervalSinceNow: 0.15)
         )
+
+        // Safari 27 can keep the toolbar label “Translation Available” even
+        // after translation. Its enabled View Original command is unambiguous.
+        let menuElements = AccessibilityTree.descendants(
+            of: viewMenuItem, maximumDepth: 8
+        )
+        if menuElements.contains(where: {
+            AccessibilityTree.string($0, attribute: kAXRoleAttribute as CFString)
+                == kAXMenuItemRole as String
+                && AccessibilityTree.string($0, attribute: kAXIdentifierAttribute as CFString)
+                    == "ViewOriginalTranslation"
+                && AccessibilityTree.bool($0, attribute: kAXEnabledAttribute as CFString) == true
+        }) {
+            dismissOpenMenu(viewMenuItem)
+            return .alreadyTranslated
+        }
+
+        // Safari 27 exposes TranslationMenu below a submenu item. Explicitly
+        // open its parent before pressing a language command; a hidden item
+        // may acknowledge AXPress without starting translation.
+        if let translationMenu = menuElements.first(where: {
+            AccessibilityTree.string(
+                $0, attribute: kAXIdentifierAttribute as CFString
+            ) == "TranslationMenu"
+        }), let parent = AccessibilityTree.element(
+            translationMenu, attribute: kAXParentAttribute as CFString
+        ) {
+            guard press(parent) else {
+                dismissOpenMenu(viewMenuItem)
+                return nil
+            }
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+        }
 
         guard let translationItem = AccessibilityTree.bestElement(
             under: viewMenuItem,
@@ -351,16 +445,16 @@ private final class SafariTranslator {
             minimumScore: 100,
             score: TranslationMatcher.menuScore
         ) else {
-            dismissOpenMenu()
-            return false
+            dismissOpenMenu(viewMenuItem)
+            return nil
         }
 
         if press(translationItem) {
-            return true
+            return .commandInvoked
         }
 
-        dismissOpenMenu()
-        return false
+        dismissOpenMenu(viewMenuItem)
+        return nil
     }
 
     private func pressTranslationCommandInOpenControl(
@@ -440,13 +534,21 @@ private final class SafariTranslator {
     }
 
     private func press(_ element: AXUIElement) -> Bool {
-        AXUIElementPerformAction(
+        // If the user switches apps during a retry, stop acting on Safari.
+        guard NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+            == safariBundleIdentifier else { return false }
+        return AXUIElementPerformAction(
             element,
             kAXPressAction as CFString
         ) == .success
     }
 
-    private func dismissOpenMenu() {
+    private func dismissOpenMenu(_ menu: AXUIElement) {
+        if AXUIElementPerformAction(menu, kAXCancelAction as CFString) == .success {
+            return
+        }
+        guard let safari = NSWorkspace.shared.frontmostApplication,
+              safari.bundleIdentifier == safariBundleIdentifier else { return }
         guard let source = CGEventSource(
             stateID: .hidSystemState
         ) else {
@@ -457,50 +559,14 @@ private final class SafariTranslator {
             keyboardEventSource: source,
             virtualKey: 53,
             keyDown: true
-        )?.post(tap: .cghidEventTap)
+        )?.postToPid(safari.processIdentifier)
         CGEvent(
             keyboardEventSource: source,
             virtualKey: 53,
             keyDown: false
-        )?.post(tap: .cghidEventTap)
+        )?.postToPid(safari.processIdentifier)
     }
 
-    private func pageAppearsTranslated(
-        in window: AXUIElement
-    ) -> Bool {
-        let originalPageTerms = [
-            "원본 보기",
-            "원본으로 돌아가기",
-            "View Original",
-            "Show Original",
-            "原文を表示",
-            "显示原文",
-            "顯示原文",
-        ]
-
-        let acceptedRoles = Set([
-            kAXButtonRole as String,
-            kAXMenuButtonRole as String,
-            kAXPopUpButtonRole as String,
-        ])
-
-        return containers(
-            under: window,
-            maximumDepth: 8,
-            acceptedRoles: toolbarRoles
-        ).contains { toolbar in
-            AccessibilityTree.bestElement(
-                under: toolbar,
-                maximumDepth: 6,
-                acceptedRoles: acceptedRoles,
-                score: { text in
-                    originalPageTerms.contains(
-                        where: text.localizedCaseInsensitiveContains
-                    ) ? 1 : 0
-                }
-            ) != nil
-        }
-    }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -603,7 +669,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func handle(_ result: TranslationResult) {
         switch result {
-        case .translated, .alreadyTranslated:
+        case .commandInvoked, .alreadyTranslated:
             terminateSoon()
 
         case .safariNotRunning:
@@ -619,8 +685,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             )
 
         case .permissionRequired:
-            requestAccessibilityPermissionOnce()
-            terminateSoon()
+            if UserDefaults.standard.bool(forKey: accessibilityPromptedKey) {
+                showError(
+                    title: localized("error.permission_required.title"),
+                    message: localized(
+                        ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 27
+                            ? "error.permission_required.macos27.message"
+                            : "error.permission_required.message"
+                    )
+                )
+            } else {
+                requestAccessibilityPermissionOnce()
+                terminateSoon()
+            }
 
         case .translationUnavailable:
             showError(
@@ -645,7 +722,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alert.messageText = title
         alert.informativeText = message
         alert.addButton(withTitle: localized("button.ok"))
-        NSApp.activate(ignoringOtherApps: true)
+        if #available(macOS 14.0, *) {
+            NSApp.activate()
+        } else {
+            NSApp.activate(ignoringOtherApps: true)
+        }
         alert.runModal()
         NSApp.terminate(nil)
     }
@@ -681,9 +762,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+#if !REGRESSION_TESTS
 @main
 enum SafariTranslateApplication {
     static func main() {
+        if CommandLine.arguments.contains("--diagnose") {
+            // Deliberately report only app/OS versions and the permission bit.
+            // Do not inspect Safari windows, URLs, page content, or user names.
+            let version = Bundle.main.object(
+                forInfoDictionaryKey: "CFBundleShortVersionString"
+            ) as? String ?? "unknown"
+            print("appVersion=\(version)")
+            print("macOS=\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)")
+            print("accessibilityTrusted=\(AXIsProcessTrusted())")
+            return
+        }
         let application = NSApplication.shared
         let appDelegate = AppDelegate()
         application.delegate = appDelegate
@@ -691,3 +784,4 @@ enum SafariTranslateApplication {
         withExtendedLifetime(appDelegate) {}
     }
 }
+#endif

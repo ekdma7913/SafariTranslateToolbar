@@ -1,0 +1,96 @@
+import XCTest
+
+nonisolated final class TranslationRegressionTests: XCTestCase {
+    func testLanguageCommandsUseIdentifiersWithLocalizedFallback() {
+        XCTAssertEqual(TranslationMatcher.menuScore("한국어로 번역"), 100)
+        XCTAssertEqual(TranslationMatcher.menuScore("Translate to Korean"), 100)
+        XCTAssertEqual(
+            TranslationMatcher.menuScore("غير معروف", identifier: "Translate-ar"), 120
+        )
+        XCTAssertEqual(TranslationMatcher.menuScore("", identifier: "Translate-"), 0)
+    }
+
+    func testNonTranslationCommandsAndExtensionsAreExcluded() {
+        for identifier in ["ViewOriginalTranslation", "ReportTranslationIssue", "PreferredLanguages"] {
+            XCTAssertEqual(
+                TranslationMatcher.menuScore("Translate to Korean", identifier: identifier), 0
+            )
+        }
+        XCTAssertEqual(TranslationMatcher.menuScore("Report Translation Issue"), 0)
+        XCTAssertEqual(TranslationMatcher.menuScore("번역 문제 리포트"), 0)
+        XCTAssertEqual(TranslationMatcher.buttonScore("이 페이지를 Apple 번역으로 번역"), 0)
+        XCTAssertEqual(
+            TranslationMatcher.buttonScore("Translate to Korean", identifier: "WebExtension-other"), 0
+        )
+        XCTAssertEqual(TranslationMatcher.buttonScore("", identifier: "TranslationButton"), 100)
+    }
+
+    func testWebContentIsNeverEnumeratedEvenWithFakeChromeRoles() {
+        // The page's toolbar/menu must not become a candidate, even when its
+        // labels and roles imitate Safari's real translation controls.
+        let children = [0: [1, 2], 1: [3], 2: [4], 3: [5]]
+        let roles = [0: "AXWindow", 1: "AXWebArea", 2: "AXToolbar",
+                     3: "AXToolbar", 4: "AXButton", 5: "AXMenu"]
+        var enumerated: [Int] = []
+        let result = SafariChromeTraversal.descendants(
+            of: 0, maximumDepth: 8, maximumElements: 100,
+            role: { roles[$0] },
+            children: { enumerated.append($0); return children[$0] ?? [] }
+        )
+        XCTAssertEqual(result, [2, 4])
+        XCTAssertFalse(enumerated.contains(1))
+        XCTAssertFalse(enumerated.contains(3))
+        XCTAssertFalse(enumerated.contains(5))
+    }
+
+    func testUnknownRolesFailClosed() {
+        var enumerations = 0
+        let result = SafariChromeTraversal.descendants(
+            of: 0, maximumDepth: 8, maximumElements: 100,
+            role: { _ in nil }, children: { _ in enumerations += 1; return [1] }
+        )
+        XCTAssertTrue(result.isEmpty)
+        XCTAssertEqual(enumerations, 0)
+    }
+
+    func testDepthAndElementBudgets() {
+        let shallow = SafariChromeTraversal.descendants(
+            of: 0, maximumDepth: 1, maximumElements: 100,
+            role: { _ in "AXGroup" }, children: { [$0 + 1] }
+        )
+        XCTAssertEqual(shallow, [1])
+        let wide = SafariChromeTraversal.descendants(
+            of: 0, maximumDepth: 8, maximumElements: 3,
+            role: { _ in "AXGroup" }, children: { _ in Array(1...10_000) }
+        )
+        XCTAssertEqual(wide, [1, 2, 3])
+        let cyclic = SafariChromeTraversal.descendants(
+            of: 0, maximumDepth: 100, maximumElements: 5,
+            role: { _ in "AXGroup" }, children: { [$0] }
+        )
+        XCTAssertEqual(cyclic.count, 5)
+    }
+
+    func testZeroBudgetsDoNotReadAnyElements() {
+        for (depth, count) in [(0, 10), (10, 0)] {
+            let result = SafariChromeTraversal.descendants(
+                of: 0, maximumDepth: depth, maximumElements: count,
+                role: { _ in XCTFail("Must not query roles"); return "AXWindow" },
+                children: { _ in XCTFail("Must not query children"); return [] }
+            )
+            XCTAssertTrue(result.isEmpty)
+        }
+    }
+}
+
+@main
+enum RegressionTestRunner {
+    static func main() {
+        let suite = XCTestSuite(forTestCaseClass: TranslationRegressionTests.self)
+        suite.run()
+        guard let run = suite.testRun, run.executionCount > 0,
+              run.executionCount == suite.testCaseCount, run.hasSucceeded else {
+            exit(1)
+        }
+    }
+}

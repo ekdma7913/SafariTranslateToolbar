@@ -5,5 +5,8 @@
 "error.translation_unavailable.title" = "Translation Is Not Available on This Page";
 "error.translation_unavailable.message" = "Check whether Safari shows that translation is available in the page menu.";
 "error.automation_failed.title" = "Could Not Start Translation";
-"error.automation_failed.message" = "Safari's translation button was found, but the translation language menu could not be selected.";
+"error.automation_failed.message" = "Keep the Safari window in front and try again. If the problem continues, use Safari's View > Translate menu and check Accessibility permission in System Settings.";
 "button.ok" = "OK";
+"error.permission_required.title" = "Permission Needs Attention";
+"error.permission_required.message" = "In System Settings > Privacy & Security > Accessibility, enable SafariTranslateToolbar. If it is already enabled, turn it off and on, then click the Safari toolbar button again.";
+"error.permission_required.macos27.message" = "In System Settings > Privacy & Security > Device Control & Data Access, enable SafariTranslateToolbar. If it is already enabled, turn it off and on, then click the Safari toolbar button again.";

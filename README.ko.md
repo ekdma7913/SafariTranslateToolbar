@@ -8,7 +8,7 @@ Safari 주소창 옆 도구 막대 버튼으로 Safari의 **기존 Apple 번역 
 
 - 앱: `com.team95788x96a7.safari-translate-toolbar`
 - 확장: `com.team95788x96a7.safari-translate-toolbar.Extension`
-- 버전: `1.1.0 (2)`
+- 소스 버전: `1.1.1 (4)`; 공개 배포 파일은 GitHub Releases 참고
 - 지원 언어: 영어, 한국어
 - 최소 macOS: 13.0
 - 아키텍처: Apple Silicon `arm64` + Intel `x86_64`
@@ -21,7 +21,7 @@ Safari 주소창 옆 도구 막대 버튼으로 Safari의 **기존 Apple 번역 
 일반 사용자는 [GitHub Releases](https://github.com/ekdma7913/SafariTranslateToolbar/releases/latest)에서 최신 `SafariTranslateToolbar-버전.dmg`를 다운로드합니다. 같은 릴리스의 `.sha256` 파일로 무결성을 확인할 수 있습니다.
 
 ```sh
-shasum -a 256 -c SafariTranslateToolbar-1.1.0.dmg.sha256
+shasum -a 256 -c SafariTranslateToolbar-1.1.1.dmg.sha256
 ```
 
 ## 언어 지원
@@ -56,9 +56,13 @@ Safari에는 확장 프로그램이 내장 Apple 번역을 직접 호출하는 �
 5. 번역 가능한 페이지에서 버튼을 누릅니다.
 6. macOS가 최초 한 번 요청하는 손쉬운 사용 권한을 허용합니다.
 
-서명·공증된 배포본에서는 Safari의 `서명되지 않은 확장 프로그램 허용`을 켤 필요가 없습니다. 권한을 거부했거나 수동 초기화했다면 시스템 설정의 `개인정보 보호 및 보안 > 손쉬운 사용`에서 앱을 직접 켜야 합니다. 앱은 거부 후 시스템 팝업을 반복해서 띄우지 않습니다.
+서명·공증된 배포본에서는 Safari의 `서명되지 않은 확장 프로그램 허용`을 켤 필요가 없습니다. 권한을 거부했거나 초기화했다면 시스템 설정 > 개인정보 보호 및 보안에서 macOS 27은 `기기 제어 및 데이터 접근`, 이전 버전은 `손쉬운 사용`을 열어 앱을 켜 주세요. 시스템 권한 팝업은 반복 요청하지 않으며, 권한이 없는 상태로 번역 버튼을 누르면 복구 방법을 안내합니다.
 
 ## 개발 및 릴리스
+
+현재 작업 소스에는 macOS 27 / Safari 27 대응 개선이 포함되어 있습니다.
+[호환성 점검 결과와 남은 설치 테스트](docs/MACOS27.ko.md)를 참고하세요.
+기존 설치 앱은 자동으로 업데이트되지 않습니다. 새 DMG를 다운로드하여 설치해 주세요.
 
 필요 조건:
 
@@ -68,9 +72,10 @@ Safari에는 확장 프로그램이 내장 Apple 번역을 직접 호출하는 �
 
 ```sh
 ./scripts/source-audit.sh
+./scripts/test.sh
 ./scripts/release.sh
 ./scripts/configure-notary.sh
-./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.0.dmg
+./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.1.dmg
 ```
 
 빌드부터 공증까지 한 번에 실행하려면 `./scripts/release.sh --notarize`를 사용합니다. Apple ID와 앱 전용 암호는 `notarytool`의 대화형 프롬프트에만 입력하고 프로젝트에 저장하지 않습니다.

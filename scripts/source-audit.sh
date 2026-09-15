@@ -88,7 +88,9 @@ for language in en ko; do
         error.safari_not_running.title error.safari_not_running.message \
         error.no_safari_window.title error.no_safari_window.message \
         error.translation_unavailable.title error.translation_unavailable.message \
-        error.automation_failed.title error.automation_failed.message button.ok
+        error.automation_failed.title error.automation_failed.message button.ok \
+        error.permission_required.title error.permission_required.message \
+        error.permission_required.macos27.message
     do
         rg -Fq "\"${string_key}\" =" \
             "${APP_LOCALIZATION_DIR}/${language}.lproj/Localizable.strings" || \
@@ -105,8 +107,10 @@ for document in \
     docs/PRIVACY.md docs/PRIVACY.ko.md \
     docs/DISTRIBUTION.md docs/DISTRIBUTION.ko.md \
     docs/GITHUB_WORKFLOW.md docs/GITHUB_WORKFLOW.ko.md \
+    docs/MACOS27.md docs/MACOS27.ko.md \
     docs/RELEASE_NOTES_1.0.0.md docs/RELEASE_NOTES_1.0.0.ko.md \
     docs/RELEASE_NOTES_1.1.0.md docs/RELEASE_NOTES_1.1.0.ko.md \
+    docs/RELEASE_NOTES_1.1.1.md docs/RELEASE_NOTES_1.1.1.ko.md \
     DMG_INSTALL.txt DMG_INSTALL.ko.txt
 do
     [[ -s "${ROOT_DIR}/${document}" ]] || fail "영어/한국어 문서가 없습니다: ${document}"

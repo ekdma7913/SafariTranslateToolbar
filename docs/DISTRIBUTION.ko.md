@@ -34,7 +34,7 @@ Apple ID와 앱 전용 암호는 Apple의 대화형 입력에서만 제공되고
 ## 5. 공증 및 스테이플
 
 ```sh
-./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.0.dmg
+./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.1.dmg
 ```
 
 스크립트는 DMG 서명 검사, `notarytool submit --wait`, 결과·로그 저장, Accepted 상태 확인, staple 및 Gatekeeper 평가를 수행합니다.
@@ -55,11 +55,12 @@ Apple ID와 앱 전용 암호는 Apple의 대화형 입력에서만 제공되고
 공증과 실제 확인을 마친 DMG만 GitHub Release에 첨부합니다. `dist/`는 Git으로 추적하지 않습니다.
 
 ```sh
-gh release create v1.1.0 \
-  dist/SafariTranslateToolbar-1.1.0.dmg \
-  dist/SafariTranslateToolbar-1.1.0.dmg.sha256 \
-  --title "Safari Translate Toolbar 1.1.0" \
-  --notes-file docs/RELEASE_NOTES_1.1.0.md
+gh release create v1.1.1 \
+  dist/SafariTranslateToolbar-1.1.1.dmg \
+  dist/SafariTranslateToolbar-1.1.1.dmg.sha256 \
+  --verify-tag \
+  --title "Safari Translate Toolbar 1.1.1" \
+  --notes-file docs/RELEASE_NOTES_1.1.1.md
 ```
 
 이미 공개한 파일을 같은 이름으로 조용히 교체하지 말고, 수정 시 버전을 올려 새 Release를 만듭니다.

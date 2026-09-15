@@ -29,13 +29,20 @@ Safari does not provide a public extension API for starting its built-in Apple t
 
 - The target process is fixed to bundle ID `com.apple.Safari`.
 - The search is constrained by role to Safari's toolbar, menus, and popovers.
+- Traversal stops at `AXWebArea` before enumerating its children; webpage toolbars and menus cannot become translation candidates. Elements with unreadable roles are skipped.
 - It checks only the titles, descriptions, help text, and identifiers of translation-related controls.
 - It does not read `AXValue`, which could expose page input values.
 - It does not write search results to disk or send them over a network.
 - It does not read or store webpage content.
 - It exits immediately after starting translation.
 
+Menu dismissal first uses the menu's Accessibility cancel action. Its Escape fallback targets only the Safari process while Safari is frontmost.
+
 macOS TCC manages the permission itself. The app stores one boolean in `UserDefaults` indicating that it already attempted the system permission prompt. This contains no user information and prevents a repeated prompt loop.
+
+If that permission is later missing, an explicit translation attempt shows localized recovery guidance instead of repeatedly requesting the system prompt. macOS 27 installation guidance accounts for the renamed Device Control & Data Access panel (observed in Korean as “기기 제어 및 데이터 접근”).
+
+The optional command-line `--diagnose` mode prints only the app version, macOS major version, and current Accessibility trust status. It does not inspect Safari, request permission, save a report, or transmit data.
 
 ## App Sandbox and entitlements
 
@@ -45,3 +52,19 @@ macOS TCC manages the permission itself. The app stores one boolean in `UserDefa
 - Hardened Runtime enabled for both executable targets
 
 Release checks fail if `AXValue`, network/file/clipboard APIs, extension permissions, or required localization resources change unexpectedly.
+
+## v1.1.1 pre-publication review
+
+On September 15, 2026, the source, reachable local Git history, notarized DMG,
+embedded app/extension, image metadata, and extended attributes were checked.
+No unnecessary personal email, home-directory path, credential, or private key
+was found within that scope. Git authors and committers use the public GitHub
+username and GitHub noreply address. App-icon EXIF contains only pixel dimensions;
+no author or location metadata was found. Local build logs and backups are excluded
+from Git and release attachments.
+
+The Developer ID signer name and Team ID remain in the signatures. The DMG's
+local extended attributes include disk-image checksum metadata; GitHub asset
+uploads transfer the file bytes, not those filesystem attributes. This review is
+not a guarantee that every possible secret format or runtime issue has been ruled
+out. See [validation scope](MACOS27.md) for the remaining manual tests.

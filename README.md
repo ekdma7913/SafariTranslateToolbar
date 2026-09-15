@@ -8,7 +8,7 @@ A macOS app and Safari Web Extension that runs Safari's **built-in Apple transla
 
 - App: `com.team95788x96a7.safari-translate-toolbar`
 - Extension: `com.team95788x96a7.safari-translate-toolbar.Extension`
-- Version: `1.1.0 (2)`
+- Source version: `1.1.1 (4)`; see GitHub Releases for published binaries
 - Languages: English and Korean
 - Minimum macOS: 13.0
 - Architectures: Apple Silicon `arm64` and Intel `x86_64`
@@ -21,7 +21,7 @@ Keep the app and extension bundle identifiers and Team ID stable after publishin
 Download the latest `SafariTranslateToolbar-version.dmg` from [GitHub Releases](https://github.com/ekdma7913/SafariTranslateToolbar/releases/latest). The matching `.sha256` file can verify download integrity.
 
 ```sh
-shasum -a 256 -c SafariTranslateToolbar-1.1.0.dmg.sha256
+shasum -a 256 -c SafariTranslateToolbar-1.1.1.dmg.sha256
 ```
 
 ## Language support
@@ -56,9 +56,13 @@ Use only the **notarized DMG** for external distribution.
 5. Open a translatable page and click the button.
 6. Allow the one-time macOS Accessibility request.
 
-The signed and notarized build does not require Safari's “Allow Unsigned Extensions” setting. If Accessibility permission was denied or manually reset, enable the app in System Settings > Privacy & Security > Accessibility. The app does not repeatedly show the system prompt after a denial.
+The signed and notarized build does not require Safari's “Allow Unsigned Extensions” setting. If control permission was denied or reset, enable the app in System Settings > Privacy & Security > Device Control & Data Access on macOS 27, or Accessibility on earlier versions. The app does not repeat the system permission prompt; a requested translation shows recovery guidance if access is still missing.
 
 ## Development and release
+
+The working tree includes macOS 27 / Safari 27 compatibility improvements.
+See [compatibility checks and remaining installation tests](docs/MACOS27.md).
+Existing installations are not updated automatically. Download and install the new DMG to update.
 
 Requirements:
 
@@ -68,9 +72,10 @@ Requirements:
 
 ```sh
 ./scripts/source-audit.sh
+./scripts/test.sh
 ./scripts/release.sh
 ./scripts/configure-notary.sh
-./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.0.dmg
+./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.1.dmg
 ```
 
 Use `./scripts/release.sh --notarize` to build and notarize in one command. Enter Apple credentials only in Apple's interactive `notarytool` prompt; never store them in the project.
