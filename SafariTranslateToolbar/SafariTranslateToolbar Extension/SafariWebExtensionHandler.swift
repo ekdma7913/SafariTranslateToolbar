@@ -10,9 +10,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         guard
             let dictionary = message as? [String: Any],
             dictionary["command"] as? String == "translate",
-            let url = URL(
-                string: "safaritranslate95788x96a7://translate"
-            )
+            let requestID = dictionary["requestID"] as? String,
+            let requestUUID = UUID(uuidString: requestID),
+            let url = URL(string: "safaritranslate95788x96a7://translate?request=\(requestUUID.uuidString.lowercased())")
         else {
             complete(
                 context,

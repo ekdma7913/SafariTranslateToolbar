@@ -6,8 +6,11 @@
         "message": "Run Safari's built-in Apple translation for the current page from the toolbar."
     },
     "action_title": {
-        "message": "Translate This Page with Apple Translate"
+        "message": "Toggle Apple Translation / Original Page"
     },
+    "action_original": { "message": "Translation On — Show Original Page" },
+    "action_pending": { "message": "Changing translation…" },
+    "action_unknown": { "message": "State not confirmed — click to toggle translation" },
     "native_error_prefix": {
         "message": "The Safari translation app could not process the command:"
     },

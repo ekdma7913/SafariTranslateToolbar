@@ -6,8 +6,11 @@
         "message": "Safari 도구 막대에서 현재 페이지의 내장 Apple 번역을 바로 실행합니다."
     },
     "action_title": {
-        "message": "이 페이지를 Apple 번역으로 번역"
+        "message": "Apple 번역 / 원본 전환"
     },
+    "action_original": { "message": "번역 켜짐 — 원본으로 되돌리기" },
+    "action_pending": { "message": "번역 상태를 바꾸는 중…" },
+    "action_unknown": { "message": "상태 확인 안 됨 — 클릭하여 번역 / 원본 전환" },
     "native_error_prefix": {
         "message": "Safari 번역 앱이 명령을 처리하지 못했습니다:"
     },

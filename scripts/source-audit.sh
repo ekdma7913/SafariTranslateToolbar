@@ -76,7 +76,7 @@ for language in en ko; do
     done
 
     for message_key in \
-        extension_name extension_description action_title \
+        extension_name extension_description action_title action_original action_pending action_unknown \
         native_error_prefix unknown_error connection_error_prefix
     do
         plutil -extract "${message_key}.message" raw -o - \
@@ -108,13 +108,18 @@ for document in \
     docs/DISTRIBUTION.md docs/DISTRIBUTION.ko.md \
     docs/GITHUB_WORKFLOW.md docs/GITHUB_WORKFLOW.ko.md \
     docs/MACOS27.md docs/MACOS27.ko.md \
+    docs/TOGGLE.md docs/TOGGLE.ko.md \
     docs/RELEASE_NOTES_1.0.0.md docs/RELEASE_NOTES_1.0.0.ko.md \
     docs/RELEASE_NOTES_1.1.0.md docs/RELEASE_NOTES_1.1.0.ko.md \
     docs/RELEASE_NOTES_1.1.1.md docs/RELEASE_NOTES_1.1.1.ko.md \
+    docs/RELEASE_NOTES_1.2.0.md docs/RELEASE_NOTES_1.2.0.ko.md \
     DMG_INSTALL.txt DMG_INSTALL.ko.txt
 do
     [[ -s "${ROOT_DIR}/${document}" ]] || fail "영어/한국어 문서가 없습니다: ${document}"
 done
+
+[[ -s "${PROJECT_DIR}/SafariTranslateToolbar Extension/Resources/images/toolbar-icon-on.svg" ]] || \
+    fail "번역 켜짐 표시 아이콘이 없습니다."
 
 rg -Fq "MARKETING_VERSION = ${MARKETING_VERSION};" "${PROJECT_FILE}" || \
     fail "Xcode 마케팅 버전이 릴리스 버전과 다릅니다."

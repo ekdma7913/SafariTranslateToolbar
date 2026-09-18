@@ -23,3 +23,6 @@ xcrun swiftc \
     "${ROOT_DIR}/Tests/TranslationRegressionTests.swift" \
     -o "${TEST_BUILD_DIR}/TranslationRegressionTests"
 "${TEST_BUILD_DIR}/TranslationRegressionTests"
+
+# Node's built-in test runner mocks browser APIs; no Safari/page access.
+node --test "${ROOT_DIR}/Tests/ToolbarStateTests.cjs"

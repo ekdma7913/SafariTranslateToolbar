@@ -34,7 +34,7 @@ Provide the Apple ID and app-specific password only in Apple's interactive promp
 ## 5. Notarize and staple
 
 ```sh
-./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.1.dmg
+./scripts/notarize.sh dist/SafariTranslateToolbar-1.2.0.dmg
 ```
 
 The script checks the DMG signature, runs `notarytool submit --wait`, saves the result and log, staples only an Accepted submission, and verifies the staple and Gatekeeper assessment.
@@ -55,12 +55,12 @@ The script checks the DMG signature, runs `notarytool submit --wait`, saves the 
 Attach only a notarized and manually verified DMG to a GitHub Release. `dist/` is intentionally not tracked by Git.
 
 ```sh
-gh release create v1.1.1 \
-  dist/SafariTranslateToolbar-1.1.1.dmg \
-  dist/SafariTranslateToolbar-1.1.1.dmg.sha256 \
+gh release create v1.2.0 \
+  dist/SafariTranslateToolbar-1.2.0.dmg \
+  dist/SafariTranslateToolbar-1.2.0.dmg.sha256 \
   --verify-tag \
-  --title "Safari Translate Toolbar 1.1.1" \
-  --notes-file docs/RELEASE_NOTES_1.1.1.md
+  --title "Safari Translate Toolbar 1.2.0" \
+  --notes-file docs/RELEASE_NOTES_1.2.0.md
 ```
 
 Do not silently replace an already published asset with the same filename. Create a new version so users can identify the binary they downloaded.

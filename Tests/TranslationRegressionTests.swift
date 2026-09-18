@@ -1,6 +1,30 @@
 import XCTest
 
 nonisolated final class TranslationRegressionTests: XCTestCase {
+    func testToggleUsesMenuStateAndOnlyConfirmsExpectedTransition() {
+        XCTAssertTrue(TranslationTogglePolicy.shouldRestoreOriginal(enabled: true))
+        XCTAssertFalse(TranslationTogglePolicy.shouldRestoreOriginal(enabled: false))
+        XCTAssertFalse(TranslationTogglePolicy.shouldRestoreOriginal(enabled: nil))
+        XCTAssertEqual(TranslationTogglePolicy.confirmedState(originalEnabled: true, expectedTranslated: true), "translated")
+        XCTAssertEqual(TranslationTogglePolicy.confirmedState(originalEnabled: false, expectedTranslated: false), "original")
+        for expected in [true, false] {
+            XCTAssertEqual(TranslationTogglePolicy.confirmedState(originalEnabled: nil, expectedTranslated: expected), "unknown")
+            XCTAssertEqual(TranslationTogglePolicy.confirmedState(originalEnabled: !expected, expectedTranslated: expected), "unknown")
+        }
+    }
+
+    func testOriginalCommandUsesIdentifierAndExactLocalizedFallback() {
+        XCTAssertEqual(TranslationMatcher.originalScore("任意", identifier: "ViewOriginalTranslation"), 120)
+        for label in ["View Original", "Show Original", "원본 보기", "原文を表示", "显示原文"] {
+            XCTAssertEqual(TranslationMatcher.originalScore(label), 100)
+        }
+        for identifier in ["Translate-ko_KR", "ReportTranslationIssue", "WebExtension-test"] {
+            XCTAssertEqual(TranslationMatcher.originalScore("View Original", identifier: identifier), 0)
+        }
+        XCTAssertEqual(TranslationMatcher.originalScore("View Original Something Else"), 0)
+        XCTAssertEqual(TranslationMatcher.originalScore("한국어로 번역"), 0)
+    }
+
     func testLanguageCommandsUseIdentifiersWithLocalizedFallback() {
         XCTAssertEqual(TranslationMatcher.menuScore("한국어로 번역"), 100)
         XCTAssertEqual(TranslationMatcher.menuScore("Translate to Korean"), 100)

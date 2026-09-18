@@ -21,7 +21,12 @@ The manifest declares exactly one permission: `nativeMessaging`.
 - No clipboard permission
 - No network permission
 
-When the toolbar button is clicked, `nativeMessaging` sends only the fixed local command `{ "command": "translate" }` to the container app. It does not send page content, URLs, cookies, or form input.
+When clicked, `nativeMessaging` sends the fixed local `translate` command and a
+random per-click UUID. The app returns that UUID and a state (`translated`,
+`original`, or `unknown`) through a native port. It does not send page content,
+URLs, cookies, or form input. The extension uses opaque tab/window IDs and loading
+events in memory to route the indicator and discard stale replies; no `tabs`,
+website, storage, or App Group permission is added. State is not persisted.
 
 ## macOS Accessibility permission
 
@@ -34,7 +39,7 @@ Safari does not provide a public extension API for starting its built-in Apple t
 - It does not read `AXValue`, which could expose page input values.
 - It does not write search results to disk or send them over a network.
 - It does not read or store webpage content.
-- It exits immediately after starting translation.
+- It briefly checks the native menu after toggling, reports the state, and exits.
 
 Menu dismissal first uses the menu's Accessibility cancel action. Its Escape fallback targets only the Safari process while Safari is frontmost.
 
@@ -53,7 +58,13 @@ The optional command-line `--diagnose` mode prints only the app version, macOS m
 
 Release checks fail if `AXValue`, network/file/clipboard APIs, extension permissions, or required localization resources change unexpectedly.
 
-## v1.1.1 pre-publication review
+## Pre-publication reviews
+
+The v1.2.0 source and notarized DMG were rechecked on September 19, 2026. No
+unnecessary personal paths, email addresses, credentials, or private keys were
+found in that review. Public Developer ID signing identity remains visible.
+Only the DMG and its checksum are attached to the release; local logs/backups
+remain excluded. See [v1.2.0 validation](TOGGLE.md) for runtime scope.
 
 On September 15, 2026, the source, reachable local Git history, notarized DMG,
 embedded app/extension, image metadata, and extended attributes were checked.

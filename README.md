@@ -8,7 +8,7 @@ A macOS app and Safari Web Extension that runs Safari's **built-in Apple transla
 
 - App: `com.team95788x96a7.safari-translate-toolbar`
 - Extension: `com.team95788x96a7.safari-translate-toolbar.Extension`
-- Source version: `1.1.1 (4)`; see GitHub Releases for published binaries
+- Source version: `1.2.0 (5)`; see GitHub Releases for published binaries
 - Languages: English and Korean
 - Minimum macOS: 13.0
 - Architectures: Apple Silicon `arm64` and Intel `x86_64`
@@ -21,7 +21,7 @@ Keep the app and extension bundle identifiers and Team ID stable after publishin
 Download the latest `SafariTranslateToolbar-version.dmg` from [GitHub Releases](https://github.com/ekdma7913/SafariTranslateToolbar/releases/latest). The matching `.sha256` file can verify download integrity.
 
 ```sh
-shasum -a 256 -c SafariTranslateToolbar-1.1.1.dmg.sha256
+shasum -a 256 -c SafariTranslateToolbar-1.2.0.dmg.sha256
 ```
 
 ## Language support
@@ -35,12 +35,25 @@ The language into which Safari translates a webpage is separate from this app's 
 
 ## How it works
 
+Click once to translate; click again to restore the original. A confirmed translated
+state shows an active icon and `ON` badge; restoring the original clears them.
+`…` means a request is pending and `?` means the state could not be confirmed.
+Safari may render toolbar icons/badges with its own colors, so the shape and text
+also distinguish the states. Rapid clicks while a request is pending are ignored.
+
+The indicator records the last state confirmed through this button, not a live
+monitor of Safari's own menu. Navigation or a browser restart clears it; manual
+translation-menu changes are reconciled on the next click. Each click reads Safari's
+actual menu state to choose translation or restoration, regardless of the badge.
+See [toggle validation and limitations](docs/TOGGLE.md) for tested behavior and remaining checks.
+
 ```text
 Safari toolbar button
   → nativeMessaging calls the local extension handler
   → a private URL scheme launches the container app
-  → Accessibility selects Safari's View > Translate command
-  → Safari runs Apple translation
+  → Accessibility selects Safari's Translate or View Original command
+  → the app confirms menu state and replies through native messaging
+  → the originating tab's toolbar indicator updates
 ```
 
 Safari does not expose a public extension API for directly starting its built-in translation. The container app therefore presses the translation command already present in Safari's UI. Major Safari or macOS menu changes may require an update to the Accessibility matching logic.
@@ -67,6 +80,7 @@ Existing installations are not updated automatically. Download and install the n
 Requirements:
 
 - Xcode and the macOS SDK
+- Node.js 18+ for the toolbar-state regression tests
 - A valid Developer ID Application certificate and private key for Team `95788X96A7`
 - An app-specific Apple ID password or App Store Connect API key only when notarizing
 
@@ -75,7 +89,7 @@ Requirements:
 ./scripts/test.sh
 ./scripts/release.sh
 ./scripts/configure-notary.sh
-./scripts/notarize.sh dist/SafariTranslateToolbar-1.1.1.dmg
+./scripts/notarize.sh dist/SafariTranslateToolbar-1.2.0.dmg
 ```
 
 Use `./scripts/release.sh --notarize` to build and notarize in one command. Enter Apple credentials only in Apple's interactive `notarytool` prompt; never store them in the project.
