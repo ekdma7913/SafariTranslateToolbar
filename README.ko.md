@@ -8,7 +8,7 @@ Safari 주소창 옆 도구 막대 버튼으로 Safari의 **기존 Apple 번역 
 
 - 앱: `com.team95788x96a7.safari-translate-toolbar`
 - 확장: `com.team95788x96a7.safari-translate-toolbar.Extension`
-- 소스 버전: `1.2.0 (5)`; 공개 배포 파일은 GitHub Releases 참고
+- 소스 버전: `1.2.1 (6)`; 공개 배포 파일은 GitHub Releases 참고
 - 지원 언어: 영어, 한국어
 - 최소 macOS: 13.0
 - 아키텍처: Apple Silicon `arm64` + Intel `x86_64`
@@ -21,7 +21,7 @@ Safari 주소창 옆 도구 막대 버튼으로 Safari의 **기존 Apple 번역 
 일반 사용자는 [GitHub Releases](https://github.com/ekdma7913/SafariTranslateToolbar/releases/latest)에서 최신 `SafariTranslateToolbar-버전.dmg`를 다운로드합니다. 같은 릴리스의 `.sha256` 파일로 무결성을 확인할 수 있습니다.
 
 ```sh
-shasum -a 256 -c SafariTranslateToolbar-1.2.0.dmg.sha256
+shasum -a 256 -c SafariTranslateToolbar-1.2.1.dmg.sha256
 ```
 
 ## 언어 지원
@@ -35,14 +35,14 @@ Safari가 번역할 목표 언어는 이 앱의 표시 언어와 별개입니다
 
 ## 동작 구조
 
-한 번 누르면 번역하고 다시 누르면 원문으로 돌아갑니다. 번역 상태가 확인되면
-활성 아이콘과 `ON` 배지가 표시되고, 원문으로 복귀하면 꺼집니다. `…`는 처리 중,
-`?`는 상태를 확인하지 못했다는 뜻입니다. Safari가 아이콘·배지 색을 자체적으로
-표시할 수 있으므로 모양과 글자도 함께 바뀝니다. 처리 중 연속 클릭은 무시합니다.
+한 번 누르면 번역하고 다시 누르면 원문으로 돌아갑니다. 확인된 번역 상태는 원 안의
+체크 표시, 원문 상태는 기본 번역 아이콘, 처리 중에는 모래시계로 표시합니다.
+상태를 확인하지 못하면 기본 아이콘과 안내 툴팁을 사용합니다. 아이콘 위에 글자 배지를
+겹치지 않습니다. Safari가 색을 결정하므로 모양으로 상태를 구분하며, 처리 중 연속 클릭은 무시합니다.
 
 표시는 이 버튼으로 마지막 확인한 상태이며 Safari 메뉴의 상시 감시 결과는 아닙니다.
 페이지 이동이나 브라우저 재시작 시 초기화되고, Safari 메뉴에서 직접 바꾼 상태는
-다음 클릭에 다시 확인합니다. 실제 동작은 배지와 무관하게 Safari의 현재 메뉴 상태를
+다음 클릭에 다시 확인합니다. 실제 동작은 아이콘과 무관하게 Safari의 현재 메뉴 상태를
 읽어 번역 또는 원문 복귀를 결정합니다.
 확인한 동작과 남은 테스트는 [토글 검증 범위와 제한](docs/TOGGLE.ko.md)을 참고하세요.
 
@@ -88,7 +88,7 @@ Safari에는 확장 프로그램이 내장 Apple 번역을 직접 호출하는 �
 ./scripts/test.sh
 ./scripts/release.sh
 ./scripts/configure-notary.sh
-./scripts/notarize.sh dist/SafariTranslateToolbar-1.2.0.dmg
+./scripts/notarize.sh dist/SafariTranslateToolbar-1.2.1.dmg
 ```
 
 빌드부터 공증까지 한 번에 실행하려면 `./scripts/release.sh --notarize`를 사용합니다. Apple ID와 앱 전용 암호는 `notarytool`의 대화형 프롬프트에만 입력하고 프로젝트에 저장하지 않습니다.

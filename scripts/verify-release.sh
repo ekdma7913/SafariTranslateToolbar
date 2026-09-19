@@ -77,6 +77,11 @@ if [[ -n "${app_path}" ]]; then
     extension_path="${app_path}/Contents/PlugIns/SafariTranslateToolbar Extension.appex"
     [[ -d "${extension_path}" ]] || fail "내장 Safari 확장을 찾을 수 없습니다."
 
+    for icon in toolbar-icon.svg toolbar-icon-on.svg toolbar-icon-pending.svg; do
+        [[ -s "${extension_path}/Contents/Resources/images/${icon}" ]] || \
+            fail "서명된 확장에 상태 아이콘이 없습니다: ${icon}"
+    done
+
     app_identifier="$(plutil -extract CFBundleIdentifier raw -o - "${app_path}/Contents/Info.plist")"
     extension_identifier="$(plutil -extract CFBundleIdentifier raw -o - "${extension_path}/Contents/Info.plist")"
     [[ "${app_identifier}" == "${APP_BUNDLE_ID}" ]] || fail "앱 bundle ID가 다릅니다."

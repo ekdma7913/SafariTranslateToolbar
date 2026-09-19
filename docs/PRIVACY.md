@@ -60,6 +60,12 @@ Release checks fail if `AXValue`, network/file/clipboard APIs, extension permiss
 
 ## Pre-publication reviews
 
+The v1.2.1 source, Git author/committer metadata, and notarized DMG contents were
+rechecked on September 19, 2026. The review found no unnecessary personal paths,
+personal email addresses, credentials, or private keys within its scope. No new
+permissions or data access were added. Public Developer ID signing identity remains
+visible; only the DMG and checksum are release attachments. See [1.2.1 validation](TOGGLE.md).
+
 The v1.2.0 source and notarized DMG were rechecked on September 19, 2026. No
 unnecessary personal paths, email addresses, credentials, or private keys were
 found in that review. Public Developer ID signing identity remains visible.

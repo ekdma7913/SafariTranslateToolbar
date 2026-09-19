@@ -5,7 +5,7 @@ Install Safari Translate Toolbar
 3. In Safari Settings > Extensions, enable Safari Translate Button.
 4. If the button is missing, add it using Customize Toolbar in Safari.
 5. On a translatable page, click the button and allow the one-time macOS Accessibility request.
-6. Click again to show the original. ON marks confirmed translation; restoring the original clears it. A question mark means the state could not be confirmed.
+6. Click again to show the original. A circled checkmark marks confirmed translation; an hourglass means pending. The normal icon returns for the original or an unconfirmed state; hover for details. No text badges are used.
 
 If permission needs attention, open System Settings > Privacy & Security > Device Control & Data Access (macOS 27), or Accessibility (earlier macOS), and enable SafariTranslateToolbar.
 

@@ -12,21 +12,23 @@ function render(tabId, state) {
     // Serialize writes so a slow earlier render cannot overwrite a newer state.
     const update = (renders.get(tabId) || Promise.resolve()).then(async () => {
         const translated = state === "translated";
-        const text = translated ? "ON" : state === "pending" ? "…" : state === "unknown" ? "?" : "";
+        const path = translated ? "images/toolbar-icon-on.svg"
+            : state === "pending" ? "images/toolbar-icon-pending.svg" : "images/toolbar-icon.svg";
         const title = state === "translated"
             ? message("action_original", "Show Original Page")
             : state === "pending" ? message("action_pending", "Changing translation…")
             : state === "unknown" ? message("action_unknown", "State not confirmed — click to toggle translation")
             : message("action_title", "Toggle Apple Translation / Original Page");
         for (const [method, details] of [
-            ["setIcon", { path: translated ? "images/toolbar-icon-on.svg" : "images/toolbar-icon.svg" }],
-            ["setBadgeBackgroundColor", { color: translated ? "#007AFF" : "#6E6E73" }],
-            ["setBadgeText", { text }],
+            // Clear badges left by 1.2.0 before drawing the new icon. Safari's
+            // tiny text badges can overlap the glyph and look corrupted.
+            ["setBadgeText", { text: "" }],
+            ["setIcon", { path }],
             ["setTitle", { title }],
         ]) {
             if (states.get(tabId) !== revision) return;
             try { await browser.action[method]?.({ tabId, ...details }); }
-            catch { /* Safari may not support badge colors; retain text/shape. */ }
+            catch { /* The tab may have closed; continue other supported updates. */ }
         }
     });
     renders.set(tabId, update);
@@ -89,7 +91,7 @@ browser.tabs.onRemoved.addListener((tabId) => {
     states.delete(tabId);
 });
 
-// Safari owns each tab's last confirmed badge across background suspension.
+// Safari owns each tab's last confirmed icon across background suspension.
 // Reset only on browser startup/update, not every background-script wake-up.
 function resetIndicators() {
     return browser.tabs.query({}).then((tabs) => {

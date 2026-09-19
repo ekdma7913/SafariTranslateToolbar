@@ -113,6 +113,7 @@ for document in \
     docs/RELEASE_NOTES_1.1.0.md docs/RELEASE_NOTES_1.1.0.ko.md \
     docs/RELEASE_NOTES_1.1.1.md docs/RELEASE_NOTES_1.1.1.ko.md \
     docs/RELEASE_NOTES_1.2.0.md docs/RELEASE_NOTES_1.2.0.ko.md \
+    docs/RELEASE_NOTES_1.2.1.md docs/RELEASE_NOTES_1.2.1.ko.md \
     DMG_INSTALL.txt DMG_INSTALL.ko.txt
 do
     [[ -s "${ROOT_DIR}/${document}" ]] || fail "영어/한국어 문서가 없습니다: ${document}"
@@ -120,6 +121,8 @@ done
 
 [[ -s "${PROJECT_DIR}/SafariTranslateToolbar Extension/Resources/images/toolbar-icon-on.svg" ]] || \
     fail "번역 켜짐 표시 아이콘이 없습니다."
+[[ -s "${PROJECT_DIR}/SafariTranslateToolbar Extension/Resources/images/toolbar-icon-pending.svg" ]] || \
+    fail "번역 처리 중 아이콘이 없습니다."
 
 rg -Fq "MARKETING_VERSION = ${MARKETING_VERSION};" "${PROJECT_FILE}" || \
     fail "Xcode 마케팅 버전이 릴리스 버전과 다릅니다."
